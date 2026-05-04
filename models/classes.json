@@ -1,0 +1,16 @@
+{
+  "model_type": "mobilenet_v3",
+  "num_classes": 10,
+  "classes": [
+    "apple",
+    "cherry",
+    "grape",
+    "lemon",
+    "mango",
+    "orange",
+    "pear",
+    "pistachio",
+    "strawberry",
+    "tomato"
+  ]
+}
