@@ -1,18 +1,16 @@
-# mobileNetV2_backend
+# mobileNetV3large_backend
 
-GitHub 侧用于存放**水果分类**推理权重，供 Actions 或本地脚本拉取使用。
+GitHub 侧用于存放**水果分类**推理权重（**MobileNet V3 Large**），供 Actions 或本地脚本拉取使用。
 
 ## 当前权重说明
 
 | 文件 | 说明 |
 |------|------|
-| `models/mobilenet_fruit_cls_best.pt` | 水果分类 checkpoint（**架构：MobileNet V3 Large**，非 V2） |
+| `models/mobilenet_fruit_cls_best.pt` | 水果分类 checkpoint（**MobileNet V3 Large**） |
 
 - **类别数**：10  
 - **类别顺序**（与训练时一致）：见 `models/classes.json`  
 - **来源**：本地训练产物 `runs/mobilenet_v3/weights/best.pt` 复制并重命名。
-
-若你后续训练 **MobileNet V2** 并得到 `best.pt`，可替换 `models/` 下文件并更新本 README。
 
 ## 加载示例（PyTorch）
 
@@ -28,17 +26,17 @@ model.load_state_dict(ckpt["model_state_dict"])
 model.eval()
 ```
 
-## 推送到本仓库
-
-本目录已 `git init`。在已登录 GitHub（SSH 或 PAT）的机器上执行：
+## 克隆与推送
 
 ```bash
-cd /path/to/mobileNetV2_backend
-git remote add origin git@github.com:yhlkxkzs/mobileNetV2_backend.git
-# 或: git remote add origin https://github.com/yhlkxkzs/mobileNetV2_backend.git
-git branch -M main
-git add models/ README.md models/classes.json .gitignore
-git commit -m "Add MobileNet V3 fruit classification weights and metadata"
+git clone git@github.com:yhlkxkzs/mobileNetV3large_backend.git
+# 或: git clone https://github.com/yhlkxkzs/mobileNetV3large_backend.git
+```
+
+维护者推送更新：
+
+```bash
+git remote add origin git@github.com:yhlkxkzs/mobileNetV3large_backend.git
 git push -u origin main
 ```
 
