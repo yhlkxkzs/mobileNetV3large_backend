@@ -1,3 +1,6 @@
 .DS_Store
 *.pyc
 __pycache__/
+
+# 推理产物（本地或 CI 生成，一般不提交）
+output/

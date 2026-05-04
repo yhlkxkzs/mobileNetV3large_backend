@@ -1,0 +1,44 @@
+name: Fruit classification (MobileNet V3)
+
+on:
+  push:
+    paths:
+      - "incoming/**"
+  workflow_dispatch:
+
+jobs:
+  infer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PyTorch (CPU)
+        run: |
+          pip install --upgrade pip
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install pillow
+
+      - name: Run inference
+        id: infer
+        run: |
+          python scripts/infer_fruit.py --weights models/mobilenet_fruit_cls_best.pt --incoming incoming --output output/predictions.json
+          if [ -f output/predictions.json ]; then
+            echo "## 推理结果" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat output/predictions.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "无 output/predictions.json（可能 incoming/ 下没有图片）" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload predictions artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: predictions
+          path: output/predictions.json
+          if-no-files-found: ignore
