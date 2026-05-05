@@ -2,6 +2,8 @@
 
 GitHub 侧用于存放**水果分类**推理权重（**MobileNet V3 Large**），供 Actions 或本地脚本拉取使用。
 
+**移动端（App）对接说明**（OAuth、Contents API、与 Actions 配合、联调清单）：见 **[docs/MOBILE_APP_INTEGRATION.md](docs/MOBILE_APP_INTEGRATION.md)**。
+
 ## 当前权重说明
 
 | 文件 | 说明 |
