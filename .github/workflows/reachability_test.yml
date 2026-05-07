@@ -8,4 +8,4 @@ jobs:
       - name: Try reach server
         run: |
           set -x
-          curl -v --connect-timeout 10 --max-time 15 "http://202.121.181.5:32222/" 
+          curl -v --connect-timeout 10 --max-time 15 "http://202.121.181.5:822/" 
