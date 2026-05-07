@@ -11,6 +11,61 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: POST 新图片到自建服务器（可选）
+        env:
+          UPLOAD_URL: ${{ secrets.FRUIT_SERVER_UPLOAD_URL }}
+          UPLOAD_TOKEN: ${{ secrets.FRUIT_SERVER_UPLOAD_TOKEN }}
+        run: |
+          if [ -z "$UPLOAD_URL" ]; then
+            echo "未配置 FRUIT_SERVER_UPLOAD_URL，跳过转发。"
+            exit 0
+          fi
+
+          collect_files() {
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              find incoming -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.bmp' \) 2>/dev/null | sort -u
+              return
+            fi
+            BEFORE="${{ github.event.before }}"
+            AFTER="${{ github.sha }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              find incoming -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.bmp' \) 2>/dev/null | sort -u
+              return
+            fi
+            git diff --name-only --diff-filter=ACMRT "$BEFORE" "$AFTER" | grep -E '^incoming/' || true
+          }
+
+          N=0
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            [ ! -f "$f" ] && continue
+            echo "Uploading: $f"
+            OK=0
+            if [ -n "$UPLOAD_TOKEN" ]; then
+              curl -fsS -X POST "$UPLOAD_URL" \
+                -H "Authorization: Bearer $UPLOAD_TOKEN" \
+                -F "file=@${f};type=application/octet-stream" \
+                -F "path=${f}" \
+                -F "commit=${{ github.sha }}" \
+                -F "repo=${{ github.repository }}" && OK=1 || echo "::warning::上传失败: $f"
+            else
+              curl -fsS -X POST "$UPLOAD_URL" \
+                -F "file=@${f};type=application/octet-stream" \
+                -F "path=${f}" \
+                -F "commit=${{ github.sha }}" \
+                -F "repo=${{ github.repository }}" && OK=1 || echo "::warning::上传失败: $f"
+            fi
+            [ "$OK" = 1 ] && N=$((N+1))
+          done < <(collect_files)
+
+          if [ "$N" -eq 0 ]; then
+            echo "没有需要转发的图片文件。"
+          else
+            echo "已转发 ${N} 个文件。"
+          fi
 
       - uses: actions/setup-python@v5
         with:

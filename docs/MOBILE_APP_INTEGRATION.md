@@ -29,6 +29,50 @@
 
 ---
 
+## 2.1 自建服务器接收图片（Actions + `curl` POST）
+
+本仓库 Workflow 在推理前可增加一步：**把本次涉及 `incoming/` 的图片用 `multipart/form-data` POST 到你的 HTTPS 接口**（由 GitHub Runner 发起，**整张文件在 `file` 字段**）。
+
+### 你需要做的两件事
+
+**1）在 GitHub 仓库配置 Secrets**
+
+仓库 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**：
+
+| Secret 名称 | 是否必填 | 含义 |
+|-------------|----------|------|
+| `FRUIT_SERVER_UPLOAD_URL` | **必填**（不配则跳过转发） | 你的接收地址，例如 `https://api.example.com/v1/github/incoming` |
+| `FRUIT_SERVER_UPLOAD_TOKEN` | 可选 | 若接口需要鉴权，填 Bearer token；Workflow 会加请求头 `Authorization: Bearer <token>` |
+
+**2）你的服务器提供 POST 接口**
+
+- **方法**：`POST`  
+- **Content-Type**：`multipart/form-data`（`curl -F` 自动带 boundary）  
+- **字段**：
+
+| 字段 | 说明 |
+|------|------|
+| `file` | 图片二进制（整张图） |
+| `path` | 仓库内相对路径，如 `incoming/uploads/xxx.jpg` |
+| `commit` | 本次 GitHub commit SHA |
+| `repo` | `owner/name`，如 `yhlkxkzs/mobileNetV3large_backend` |
+
+**转发哪些文件**
+
+- **普通 `push`**：仅 **本次提交里新增/修改** 且路径在 `incoming/` 下的图片（`jpg/jpeg/png/webp/bmp`）。  
+- **`workflow_dispatch` 手动跑**：`incoming/` 下 **所有** 符合后缀的图片（便于一次性补传）。
+
+### 服务端必须满足
+
+- URL 使用 **HTTPS**，且 **公网可达**（GitHub 托管 Runner 的出口能访问你）。纯内网、仅校园 VPN 可访问的地址，Runner **连不上**，需改用 **自托管 Runner** 或 **公网反代**。  
+- 若使用自签证书，需在服务端使用正规 CA 证书或 Runner 侧信任链能验证（否则 `curl` 会失败）。
+
+### 与手机端的关系
+
+手机仍按前文把图传到 GitHub `incoming/`；**推送成功后** Workflow 运行，由 Runner **再 POST 一份到你服务器**。服务器可与现有业务（入库、GPU 推理等）对接。
+
+---
+
 ## 3. 服务端 / 产品侧需先完成（非 App 内）
 
 1. 在 GitHub 注册 **OAuth App**（Settings → Developer settings → OAuth Apps）。  
