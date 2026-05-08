@@ -3,7 +3,8 @@
 GitHub 侧用于存放**水果分类**推理权重（**MobileNet V3 Large**），供 Actions 或本地脚本拉取使用。
 
 **移动端（App）对接说明**（OAuth、Contents API、与 Actions 配合、联调清单）：见 **[docs/MOBILE_APP_INTEGRATION.md](docs/MOBILE_APP_INTEGRATION.md)**。  
-若需 **Actions 将 `incoming/` 新图 POST 到自建 HTTPS 服务**，在仓库 **Settings → Secrets** 中配置 `FRUIT_SERVER_UPLOAD_URL`（及可选 `FRUIT_SERVER_UPLOAD_TOKEN`），详见该文档 **§2.1**。
+**全流程经验总结**（模型上 GitHub、手机上传/取数、Actions 与踩坑）：见 **[docs/EXPERIENCE_GITHUB_MOBILENET_V3.md](docs/EXPERIENCE_GITHUB_MOBILENET_V3.md)**。  
+若需 **Actions 将 `incoming/` 新图 POST 到自建 HTTPS 服务**，在仓库 **Settings → Secrets** 中配置 `FRUIT_SERVER_UPLOAD_URL`（及可选 `FRUIT_SERVER_UPLOAD_TOKEN`），详见 `MOBILE_APP_INTEGRATION.md` **§2.1**。
 
 ## 当前权重说明
 
