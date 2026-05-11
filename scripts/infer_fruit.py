@@ -7,6 +7,11 @@ import json
 import sys
 from pathlib import Path
 
+_SCRIPTS = Path(__file__).resolve().parent
+if _SCRIPTS.as_posix() not in sys.path:
+    sys.path.insert(0, _SCRIPTS.as_posix())
+from fruit_display_zh import friendly_zh  # noqa: E402
+
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -57,11 +62,16 @@ def predict_one(model, transform, device, image_path: Path, class_names: list[st
     top5 = probs.topk(min(5, len(class_names)))
     labels = [class_names[i] for i in top5.indices.tolist()]
     scores = [float(v) for v in top5.values.tolist()]
+    raw_main = class_names[idx]
     return {
         "image": str(image_path.as_posix()),
-        "predicted_class": class_names[idx],
+        "predicted_class": friendly_zh(raw_main),
+        "raw_class": raw_main,
         "confidence": float(probs[idx].item()),
-        "top5": [{"class": labels[i], "score": scores[i]} for i in range(len(labels))],
+        "top5": [
+            {"class": friendly_zh(labels[i]), "raw_class": labels[i], "score": scores[i]}
+            for i in range(len(labels))
+        ],
     }
 
 
