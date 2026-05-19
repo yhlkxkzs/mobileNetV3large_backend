@@ -34,7 +34,7 @@ jobs:
         run: mkdir -p out && echo classify > out/afsa_repo_kind.txt
 
       - name: Prepare category-only staging
-        if: steps.route.outputs.category_count != '0'
+        if: contains(steps.route.outputs.task_types, 'fruit_category')
         run: python3 .github/scripts/afsa_prepare_infer_staging.py
 
       - name: POST 新图片到自建服务器（可选）
@@ -63,20 +63,20 @@ jobs:
           echo "已转发 ${N} 个文件。"
 
       - uses: actions/setup-python@v5
-        if: steps.route.outputs.category_count != '0' || github.event_name == 'workflow_dispatch'
+        if: contains(steps.route.outputs.task_types, 'fruit_category')
         with:
           python-version: '3.11'
 
       - name: Install PyTorch (CPU)
-        if: steps.route.outputs.category_count != '0' || github.event_name == 'workflow_dispatch'
+        if: contains(steps.route.outputs.task_types, 'fruit_category')
         run: |
           pip install --upgrade pip
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-          pip install pillow
+          pip install pillow timm
 
       # 将下一行 --weights 换成各仓实际权重路径
       - name: Run fruit category inference
-        if: steps.route.outputs.category_count != '0' || github.event_name == 'workflow_dispatch'
+        if: contains(steps.route.outputs.task_types, 'fruit_category')
         run: |
           INCOMING_DIR="/tmp/afsa_infer_staging"
           if [ ! -d "$INCOMING_DIR/incoming" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
